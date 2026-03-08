@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Quiz Application</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .quiz-container {
+        background: #fff;
+        width: 450px;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        text-align: center;
+        position: relative;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    .option-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 8px;
+        background: #f0f0f0;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.3s;
+    }
+
+    .option-btn:hover {
+        background: #ddd;
+    }
+
+    .correct {
+        background: #4CAF50 !important;
+        color: white;
+    }
+
+    .wrong {
+        background: #f44336 !important;
+        color: white;
+    }
+
+    #next-btn, #restart-btn {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        background: #667eea;
+        color: white;
+        display: none;
+    }
+
+    #score {
+        font-size: 18px;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    .progress {
+        height: 8px;
+        background: #ddd;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #667eea;
+        transition: width 0.3s;
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <h2 id="question">Question text</h2>
+    <div id="options"></div>
+
+    <button id="next-btn">Next</button>
+    <button id="restart-btn">Restart Quiz</button>
+
+    <div id="score"></div>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "Which language is used for web apps?",
+        options: ["Python", "JavaScript", "C++", "Java"],
+        correct: 1
+    },
+    {
+        question: "Which company developed JavaScript?",
+        options: ["Microsoft", "Sun Microsystems", "Netscape", "Google"],
+        correct: 2
+    },
+    {
+        question: "Which symbol is used for comments in JavaScript?",
+        options: ["//", "##", "<!-- -->", "**"],
+        correct: 0
+    },
+    {
+        question: "Which method is used to select an element by ID?",
+        options: ["querySelector()", "getElementById()", "getElementsByClass()", "selectById()"],
+        correct: 1
+    },
+    {
+        question: "Which keyword is used to declare a variable?",
+        options: ["var", "int", "string", "define"],
+        correct: 0
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const nextBtn = document.getElementById("next-btn");
+const restartBtn = document.getElementById("restart-btn");
+const scoreEl = document.getElementById("score");
+const progressBar = document.getElementById("progress-bar");
+
+function loadQuestion() {
+    const q = quizData[currentQuestion];
+    questionEl.innerText = q.question;
+    optionsEl.innerHTML = "";
+    nextBtn.style.display = "none";
+
+    q.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.classList.add("option-btn");
+        button.addEventListener("click", () => selectAnswer(index));
+        optionsEl.appendChild(button);
+    });
+
+    updateProgress();
+}
+
+function selectAnswer(index) {
+    const buttons = document.querySelectorAll(".option-btn");
+    const correctIndex = quizData[currentQuestion].correct;
+
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === correctIndex) btn.classList.add("correct");
+        if (i === index && i !== correctIndex) btn.classList.add("wrong");
+    });
+
+    if (index === correctIndex) score++;
+
+    nextBtn.style.display = "inline-block";
+}
+
+function updateProgress() {
+    const progressPercent = ((currentQuestion) / quizData.length) * 100;
+    progressBar.style.width = progressPercent + "%";
+}
+
+nextBtn.addEventListener("click", () => {
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+});
+
+function showResult() {
+    questionEl.innerText = "Quiz Completed!";
+    optionsEl.innerHTML = "";
+    nextBtn.style.display = "none";
+    scoreEl.innerText = `Your Score: ${score} / ${quizData.length}`;
+    restartBtn.style.display = "inline-block";
+    progressBar.style.width = "100%";
+}
+
+restartBtn.addEventListener("click", () => {
+    currentQuestion = 0;
+    score = 0;
+    scoreEl.innerText = "";
+    restartBtn.style.display = "none";
+    loadQuestion();
+});
+
+loadQuestion();
+</script>
+
+</body>
+</html>
